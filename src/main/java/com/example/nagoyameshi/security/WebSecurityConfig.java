@@ -18,7 +18,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
         .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/css/**", "/images/**", "/js/**", "/storage/**", "/", "/signup/**").permitAll()  // すべてのユーザーにアクセスを許可するURL
+                .requestMatchers("/css/**", "/images/**", "/js/**", "/storage/**", "/", "/signup/**", "/password/**").permitAll()  // すべてのユーザーにアクセスを許可するURL
                 .requestMatchers("/restaurants/**").hasAnyRole("ANONYMOUS", "GENERAL", "PAID", "ADMIN")  // 未ログインのユーザー、無料会員、有料会員にアクセスを許可するURL
                 .requestMatchers("/subscription/register", "/subscription/create").hasRole("GENERAL")  // 無料会員にのみアクセスを許可するURL
                 .requestMatchers("/subscription/edit", "/subscription/update", "/subscription/cancel", "/subscription/delete").hasRole("PAID")  // 有料会員にのみアクセスを許可するURL

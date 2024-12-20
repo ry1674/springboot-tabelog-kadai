@@ -53,7 +53,7 @@ public class PasswordController {
 		}
 		
         if(bindingResult.hasErrors()) {
-        	return "password/reset";
+					return "password/reset";
         }
         
         User passwordResetUser = userRepository.findByEmail(passwordResetSendForm.getEmail());
