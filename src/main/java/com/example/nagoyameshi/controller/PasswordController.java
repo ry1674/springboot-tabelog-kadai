@@ -89,7 +89,6 @@ public class PasswordController {
     	}
 		
 		if(bindingResult.hasErrors()) {
-			System.out.println("パスワードが違う");
 			model.addAttribute("token", token);
 			return "password/edit";
 		}
