@@ -54,8 +54,15 @@ public class ReviewController {
 	}
 	
 	@GetMapping("/{id}/register")
-	public String register(@PathVariable(name = "id") Integer id, Model model) {
+	public String register(@PathVariable(name = "id") Integer id, RedirectAttributes redirectAttributes, @AuthenticationPrincipal UserDetailsImpl userDetailsImpl, Model model) {
+		User user = userDetailsImpl.getUser();
 		Restaurant restaurant = restaurantRepository.getReferenceById(id);
+		Review review = reviewRepository.findByuserAndRestaurant(user, restaurant);
+		
+		if(review != null) {
+			redirectAttributes.addFlashAttribute("successMessage", "レビューは投稿済です。");
+			return "redirect:/restaurants/{id}";
+		}
 		
 		model.addAttribute("reviewRegisterForm", new ReviewRegisterForm());
 		model.addAttribute("restaurant", restaurant);

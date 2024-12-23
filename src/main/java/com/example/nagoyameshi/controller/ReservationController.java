@@ -1,10 +1,6 @@
 package com.example.nagoyameshi.controller;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Calendar;
-import java.util.Date;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -64,7 +60,7 @@ public class ReservationController {
 						Model model)
 	{
 		Restaurant restaurant = restaurantRepository.getReferenceById(id);
-		
+
 		if(bindingResult.hasErrors()) {
 			model.addAttribute("restaurant", restaurant);
 			model.addAttribute("errorMessage", "予約内容に不備があります。");
@@ -72,31 +68,14 @@ public class ReservationController {
 		}
 	
 		String reservationDateTime = reservationInputForm.getReservationDateTime();
-		try {
-		    // String型のreservationDateTimeをDate型へ変更する
-		    SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd hh:mm");
-		    Date dateReservationDateTime = format.parse(reservationDateTime);
 
-		    // 現在から2時間前の日時を取得する
-		    Calendar calendar = Calendar.getInstance();
-		    calendar.add(Calendar.MINUTE, -120);
-		    Date twoHoursAgo = calendar.getTime();
-
-    		// 予約時間が2時間以内の場合予約不可を返す
-		    if (dateReservationDateTime.before(twoHoursAgo)) {
-		        model.addAttribute("restaurant", restaurant);
-		        model.addAttribute("errorMessage", "当日の予約は2時間前までにしてください。");
-		        return "restaurants/show";
+		// 予約時間が2時間以内の場合予約不可を返す
+		if (reservationService.beforTowHoursAgo(reservationDateTime)) {
+			model.addAttribute("restaurant", restaurant);
+		    model.addAttribute("errorMessage", "当日の予約は2時間前までにしてください。");
+		    return "restaurants/show";
 		    }
-		    		
-//	        reservationDateTimeをDB用のフォーマットへ変更する
-            String strReservationDateTime = new SimpleDateFormat("yyyy-MM-dd hh:mm").format(dateReservationDateTime);
-            reservationInputForm.setReservationDateTime(strReservationDateTime);
-    		
-		} catch(ParseException e) {
-            e.printStackTrace();
-		}
-				
+		
 		redirectAttributes.addFlashAttribute("reservationInputForm", reservationInputForm);
 		return "redirect:/restaurants/{id}/reservations/confirm";
 	}
@@ -110,12 +89,12 @@ public class ReservationController {
 	{
 		Restaurant restaurant = restaurantRepository.getReferenceById(id);
 		User user = userDetailsImpl.getUser();
-		
 		String reservationDateTime = reservationInputForm.getReservationDateTime();
 
-		ReservationRegisterForm reservationRegisterForm = new ReservationRegisterForm(restaurant.getId(), user.getId(), reservationDateTime, reservationInputForm.getNumberOfPeople());
-		
-		
+//		DB登録用にFormatを変更する。
+		String dateRdt = reservationService.dateFormat(reservationDateTime);
+
+		ReservationRegisterForm reservationRegisterForm = new ReservationRegisterForm(restaurant.getId(), user.getId(), dateRdt, reservationInputForm.getNumberOfPeople());
 		
 		model.addAttribute("restaurant", restaurant);
 		model.addAttribute("reservationRegisterForm", reservationRegisterForm);
